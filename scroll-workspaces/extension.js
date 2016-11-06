@@ -19,6 +19,7 @@ Ext.prototype = {
 	_init: function(){
 		this._panel = Main.panel;
 		this._panelBinding = null;
+		this._mmPanelsBinding = [];
 		this._lastScroll = Date.now();
 		this._workspaceManager = global.workspace_manager;
 
@@ -69,6 +70,11 @@ Ext.prototype = {
 		if (this._panelBinding) {
 			this._panel.actor.disconnect(this._panelBinding);
 			this._panelBinding = null;
+
+			for (var i = 0, len = this._mmPanelsBinding.length; i < len; i++) {
+				Main.mmPanel[i].actor.disconnect(this._mmPanelsBinding[i]);
+				this._mmPanelsBinding = [];
+			}	
 		}
 	},
 
@@ -79,6 +85,13 @@ Ext.prototype = {
 			this.disable();
 		}
 		this._panelBinding = this._panel.actor.connect('scroll-event', Lang.bind(this, this._onScrollEvent));
+
+		if (Main.mmPanel) {
+			for (var i = 0, len = Main.mmPanel.length; i < len; i++) {
+				this._mmPanelsBinding[i] = Main.mmPanel[i].actor.connect('scroll-event', Lang.bind(this, this._onScrollEvent));
+			}			
+		}
+
 	},
 
 	_onScrollEvent : function(actor, event) {
